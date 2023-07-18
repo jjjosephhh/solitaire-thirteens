@@ -14,13 +14,17 @@ const (
 )
 
 type Card struct {
-	CurPos  rl.Vector2
-	NextPos rl.Vector2
-	Suit    CardSuit
-	Num     int
-	Show    bool
-	Width   float32
-	Height  float32
+	CurPos             rl.Vector2
+	NextPos            rl.Vector2
+	Suit               CardSuit
+	Num                int
+	Show               bool
+	Width              float32
+	Height             float32
+	Exploading         bool
+	ExploadingFrame    int
+	ExploadingTimeCur  float64
+	ExploadingTimeNext float64
 }
 
 func NewCard(suit CardSuit, num int, cardWidth, cardHeight float32) *Card {

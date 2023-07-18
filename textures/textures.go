@@ -1,21 +1,26 @@
 package textures
 
 import (
+	"fmt"
+
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/jjjosephhh/solitaire-thirteens/card"
 )
 
 type Textures struct {
-	Spades     rl.Texture2D
-	Clubs      rl.Texture2D
-	Diamonds   rl.Texture2D
-	Hearts     rl.Texture2D
-	Back       rl.Texture2D
-	Deck       rl.Texture2D
-	CardWidth  float32
-	CardHeight float32
-	DeckWidth  float32
-	DeckHeight float32
+	Spades          rl.Texture2D
+	Clubs           rl.Texture2D
+	Diamonds        rl.Texture2D
+	Hearts          rl.Texture2D
+	Back            rl.Texture2D
+	Deck            rl.Texture2D
+	Explosion       rl.Texture2D
+	CardWidth       float32
+	CardHeight      float32
+	DeckWidth       float32
+	DeckHeight      float32
+	ExplosionWidth  float32
+	ExplosionHeight float32
 
 	Rect01 rl.Rectangle
 	Rect02 rl.Rectangle
@@ -34,6 +39,23 @@ type Textures struct {
 	Rect13 rl.Rectangle
 
 	RectDeck rl.Rectangle
+
+	RectExplosion01 rl.Rectangle
+	RectExplosion02 rl.Rectangle
+	RectExplosion03 rl.Rectangle
+	RectExplosion04 rl.Rectangle
+	RectExplosion05 rl.Rectangle
+	RectExplosion06 rl.Rectangle
+	RectExplosion07 rl.Rectangle
+	RectExplosion08 rl.Rectangle
+	RectExplosion09 rl.Rectangle
+	RectExplosion10 rl.Rectangle
+	RectExplosion11 rl.Rectangle
+	RectExplosion12 rl.Rectangle
+	RectExplosion13 rl.Rectangle
+	RectExplosion14 rl.Rectangle
+	RectExplosion15 rl.Rectangle
+	RectExplosion16 rl.Rectangle
 }
 
 func LoadTextures() *Textures {
@@ -44,31 +66,48 @@ func LoadTextures() *Textures {
 	tt.Hearts = rl.LoadTexture("assets/hearts.png")
 	tt.Back = rl.LoadTexture("assets/back.png")
 	tt.Deck = rl.LoadTexture("assets/deck1.png")
-	width := float32(tt.Spades.Width) / 5
-	height := float32(tt.Spades.Height) / 3
-	tt.CardWidth = width
-	tt.CardHeight = height
-	tt.Rect01 = rl.NewRectangle(0*width, 0*height, width, height)
-	tt.Rect02 = rl.NewRectangle(1*width, 0*height, width, height)
-	tt.Rect03 = rl.NewRectangle(2*width, 0*height, width, height)
-	tt.Rect04 = rl.NewRectangle(3*width, 0*height, width, height)
-	tt.Rect05 = rl.NewRectangle(4*width, 0*height, width, height)
+	tt.Explosion = rl.LoadTexture("assets/explosion01.png")
+	tt.CardWidth = float32(tt.Spades.Width) / 5
+	tt.CardHeight = float32(tt.Spades.Height) / 3
+	tt.Rect01 = rl.NewRectangle(0*tt.CardWidth, 0*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect02 = rl.NewRectangle(1*tt.CardWidth, 0*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect03 = rl.NewRectangle(2*tt.CardWidth, 0*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect04 = rl.NewRectangle(3*tt.CardWidth, 0*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect05 = rl.NewRectangle(4*tt.CardWidth, 0*tt.CardHeight, tt.CardWidth, tt.CardHeight)
 
-	tt.Rect06 = rl.NewRectangle(0*width, 1*height, width, height)
-	tt.Rect07 = rl.NewRectangle(1*width, 1*height, width, height)
-	tt.Rect08 = rl.NewRectangle(2*width, 1*height, width, height)
-	tt.Rect09 = rl.NewRectangle(3*width, 1*height, width, height)
-	tt.Rect10 = rl.NewRectangle(4*width, 1*height, width, height)
+	tt.Rect06 = rl.NewRectangle(0*tt.CardWidth, 1*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect07 = rl.NewRectangle(1*tt.CardWidth, 1*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect08 = rl.NewRectangle(2*tt.CardWidth, 1*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect09 = rl.NewRectangle(3*tt.CardWidth, 1*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect10 = rl.NewRectangle(4*tt.CardWidth, 1*tt.CardHeight, tt.CardWidth, tt.CardHeight)
 
-	tt.Rect11 = rl.NewRectangle(0*width, 2*height, width, height)
-	tt.Rect12 = rl.NewRectangle(1*width, 2*height, width, height)
-	tt.Rect13 = rl.NewRectangle(2*width, 2*height, width, height)
+	tt.Rect11 = rl.NewRectangle(0*tt.CardWidth, 2*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect12 = rl.NewRectangle(1*tt.CardWidth, 2*tt.CardHeight, tt.CardWidth, tt.CardHeight)
+	tt.Rect13 = rl.NewRectangle(2*tt.CardWidth, 2*tt.CardHeight, tt.CardWidth, tt.CardHeight)
 
-	deckWidth := float32(tt.Deck.Width / 3)
-	deckHeight := float32(tt.Deck.Height)
-	tt.DeckWidth = deckWidth
-	tt.DeckHeight = deckHeight
-	tt.RectDeck = rl.NewRectangle(deckWidth, 0, deckWidth, deckHeight)
+	tt.DeckWidth = float32(tt.Deck.Width / 3)
+	tt.DeckHeight = float32(tt.Deck.Height)
+	tt.RectDeck = rl.NewRectangle(tt.DeckWidth, 0, tt.DeckWidth, tt.DeckHeight)
+
+	tt.ExplosionWidth = float32(tt.Explosion.Width) / 4
+	tt.ExplosionHeight = float32(tt.Explosion.Height) / 4
+	fmt.Println("Explosion:", tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion01 = rl.NewRectangle(0*tt.ExplosionWidth, 0*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion02 = rl.NewRectangle(1*tt.ExplosionWidth, 0*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion03 = rl.NewRectangle(2*tt.ExplosionWidth, 0*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion04 = rl.NewRectangle(3*tt.ExplosionWidth, 0*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion05 = rl.NewRectangle(0*tt.ExplosionWidth, 1*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion06 = rl.NewRectangle(1*tt.ExplosionWidth, 1*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion07 = rl.NewRectangle(2*tt.ExplosionWidth, 1*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion08 = rl.NewRectangle(3*tt.ExplosionWidth, 1*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion09 = rl.NewRectangle(0*tt.ExplosionWidth, 2*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion10 = rl.NewRectangle(1*tt.ExplosionWidth, 2*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion11 = rl.NewRectangle(2*tt.ExplosionWidth, 2*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion12 = rl.NewRectangle(3*tt.ExplosionWidth, 2*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion13 = rl.NewRectangle(0*tt.ExplosionWidth, 3*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion14 = rl.NewRectangle(1*tt.ExplosionWidth, 3*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion15 = rl.NewRectangle(2*tt.ExplosionWidth, 3*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
+	tt.RectExplosion16 = rl.NewRectangle(3*tt.ExplosionWidth, 3*tt.ExplosionHeight, tt.ExplosionWidth, tt.ExplosionHeight)
 
 	return &tt
 }
@@ -79,6 +118,8 @@ func (tt *Textures) UnloadTextures() {
 	rl.UnloadTexture(tt.Diamonds)
 	rl.UnloadTexture(tt.Hearts)
 	rl.UnloadTexture(tt.Back)
+	rl.UnloadTexture(tt.Deck)
+	rl.UnloadTexture(tt.Explosion)
 }
 
 func (tt *Textures) FetchTexture(cur *card.Card) (texture rl.Texture2D, rect rl.Rectangle) {
