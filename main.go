@@ -108,6 +108,7 @@ func main() {
 								clickedCard2 = nil
 								break
 							}
+
 						}
 					}
 				}
@@ -115,6 +116,11 @@ func main() {
 			leftMouseDown = true
 		} else {
 			leftMouseDown = false
+		}
+
+		if clickedCard1 != nil && clickedCard2 != nil {
+			clickedCard1 = nil
+			clickedCard2 = nil
 		}
 
 		rl.BeginDrawing()
