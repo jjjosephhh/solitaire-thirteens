@@ -11,25 +11,17 @@ import (
 )
 
 func main() {
-	rl.InitWindow(int32((440/5+constants.SPACING_H)*6), int32((372/3+constants.SPACING_V)*5), "raylib [core] example - basic window")
+	windowWidth := 440 + int32(6*constants.SPACING_H)
+	windowHeight := int32(2*372/3 + 3*constants.SPACING_V)
+	rl.InitWindow(windowWidth, windowHeight, "raylib [core] example - basic window")
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
 
 	tt := textures.LoadTextures()
 	defer tt.UnloadTextures()
 
-	d := deck.NewDeck(tt.CardWidth, tt.CardHeight)
-	for i := 0; i < 10; i++ {
-		c, ok := d.Draw()
-		if !ok {
-			continue
-		}
-		c.Show = true
-		c.NextPos.X = (1 + float32(i%5)) * (c.Width + constants.SPACING_H)
-		c.NextPos.Y = float32(i/5)*(c.Height+constants.SPACING_V) + constants.TOP_OFFSET
-		d.InPlay = append(d.InPlay, c)
-	}
-
+	d := deck.NewDeck(tt.CardWidth, tt.CardHeight, windowWidth, windowHeight)
+	d.Draw10()
 	var t float32 // time parameter
 	var clickedCard1 *card.Card
 	var clickedCard2 *card.Card
@@ -58,6 +50,12 @@ func main() {
 		if canClick && rl.IsMouseButtonDown(rl.MouseLeftButton) {
 			mousePos = rl.GetMousePosition()
 			if !leftMouseDown {
+				if len(d.InDeck) == 0 && len(d.InPlay) == 0 {
+					d = deck.NewDeck(tt.CardWidth, tt.CardHeight, windowWidth, windowHeight)
+					d.Draw10()
+					continue
+				}
+
 				for _, c := range d.InPlay {
 					if c.CurPos.X <= mousePos.X && mousePos.X <= c.CurPos.X+tt.CardWidth {
 						if c.CurPos.Y <= mousePos.Y && mousePos.Y <= c.CurPos.Y+tt.CardHeight {
@@ -245,7 +243,17 @@ func main() {
 			rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
 		}
 
-		rl.DrawTextureRec(tt.Back, tt.Rect01, constants.POSITION_DECK, rl.White)
+		// rl.DrawTextureRec(tt.Back, tt.Rect01, constants.POSITION_DECK, rl.White)
+		if len(d.InPlay) == 0 {
+			textWidth := rl.MeasureText(constants.TEXT_WIN, constants.TEXT_SIZE_WIN)
+			rl.DrawText(
+				constants.TEXT_WIN,
+				(windowWidth-textWidth)/2,
+				(windowHeight-constants.TEXT_SIZE_WIN)/2,
+				constants.TEXT_SIZE_WIN,
+				rl.White,
+			)
+		}
 
 		rl.EndDrawing()
 	}

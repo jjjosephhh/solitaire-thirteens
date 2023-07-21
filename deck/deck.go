@@ -10,15 +10,17 @@ import (
 )
 
 type Deck struct {
-	InDeck  []*card.Card
-	InPlay  []*card.Card
-	Matched []*card.Card
-	Pos     rl.Vector2
+	InDeck     []*card.Card
+	InPlay     []*card.Card
+	Matched    []*card.Card
+	PosInDeck  rl.Vector2
+	PosMatched rl.Vector2
 }
 
-func NewDeck(cardWidth, cardHeight float32) *Deck {
+func NewDeck(cardWidth, cardHeight float32, windowWidth, windowHeight int32) *Deck {
 	d := &Deck{
-		Pos: rl.NewVector2(0, 0),
+		PosInDeck:  rl.NewVector2(float32(windowWidth)/2-cardWidth/2, -cardHeight),
+		PosMatched: rl.NewVector2(float32(windowWidth)/2-cardWidth/2, float32(windowHeight)),
 	}
 	for i := 1; i <= 13; i++ {
 		d.InDeck = append(d.InDeck, card.NewCard(card.Clubs, i, cardWidth, cardHeight))
@@ -27,11 +29,25 @@ func NewDeck(cardWidth, cardHeight float32) *Deck {
 		d.InDeck = append(d.InDeck, card.NewCard(card.Spades, i, cardWidth, cardHeight))
 	}
 	for _, card := range d.InDeck {
-		card.CurPos.X = d.Pos.X
-		card.CurPos.Y = d.Pos.Y
+		card.CurPos = d.PosInDeck
 	}
 	d.Shuffle()
 	return d
+}
+
+func (d *Deck) Draw10() {
+	for i := 0; i < 10; i++ {
+		c, ok := d.Draw()
+		if !ok {
+			continue
+		}
+		c.Show = true
+		c.NextPos = rl.NewVector2(
+			float32(i%5)*c.Width+float32(1+i%5)*constants.SPACING_H,
+			float32(i/5)*(c.Height+constants.SPACING_V)+constants.TOP_OFFSET,
+		)
+		d.InPlay = append(d.InPlay, c)
+	}
 }
 
 func (d *Deck) Shuffle() {
@@ -93,8 +109,7 @@ func (d *Deck) MoveToMatched(cardsToMove ...*card.Card) []rl.Vector2 {
 	d.Matched = append(d.Matched, cardsToMove...)
 
 	for _, c := range cardsToMove {
-		c.NextPos.X = 0
-		c.NextPos.Y = constants.TOP_OFFSET + 2*(c.Height+constants.SPACING_V)
+		c.NextPos = d.PosMatched
 		empty = append(empty, c.CurPos)
 	}
 	return empty
