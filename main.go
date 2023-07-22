@@ -168,7 +168,7 @@ func main() {
 					c.CurPos.Y = c.NextPos.Y
 				}
 			}
-			texture, rect := tt.FetchTexture(c)
+			texture, rect := tt.FetchCardTexture(c)
 			rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
 			if c == selected1 || c == selected2 {
 				rl.DrawRectangleLinesEx(
@@ -193,47 +193,7 @@ func main() {
 				if c.ExploadingFrame >= 16 {
 					c.Exploading = false
 				} else {
-					var rectExplosion rl.Rectangle
-					switch c.ExploadingFrame {
-					case 0:
-						rectExplosion = tt.RectExplosion01
-					case 1:
-						rectExplosion = tt.RectExplosion02
-					case 2:
-						rectExplosion = tt.RectExplosion03
-					case 3:
-						rectExplosion = tt.RectExplosion04
-					case 4:
-						rectExplosion = tt.RectExplosion05
-					case 5:
-						rectExplosion = tt.RectExplosion06
-					case 6:
-						rectExplosion = tt.RectExplosion07
-					case 7:
-						rectExplosion = tt.RectExplosion08
-					case 8:
-						rectExplosion = tt.RectExplosion09
-					case 9:
-						rectExplosion = tt.RectExplosion10
-					case 10:
-						rectExplosion = tt.RectExplosion11
-					case 11:
-						rectExplosion = tt.RectExplosion12
-					case 12:
-						rectExplosion = tt.RectExplosion13
-					case 13:
-						rectExplosion = tt.RectExplosion14
-					case 14:
-						rectExplosion = tt.RectExplosion15
-					case 15:
-						rectExplosion = tt.RectExplosion16
-					}
-					fmt.Println(rectExplosion)
-					posExplosion := rl.NewVector2(
-						c.CurPos.X+c.Width/2-tt.ExplosionWidth/2,
-						c.CurPos.Y+c.Height/2-tt.ExplosionHeight/2,
-					)
-					rl.DrawTextureRec(tt.Explosion, rectExplosion, posExplosion, rl.White)
+					tt.DrawExplosion(c.ExploadingFrame, &c.CurPos, &cardDim)
 				}
 			}
 		}
@@ -257,7 +217,7 @@ func main() {
 					c.CurPos.Y = c.NextPos.Y
 				}
 			}
-			texture, rect := tt.FetchTexture(c)
+			texture, rect := tt.FetchCardTexture(c)
 			rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
 		}
 

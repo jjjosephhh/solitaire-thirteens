@@ -122,7 +122,7 @@ func (tt *Textures) UnloadTextures() {
 	rl.UnloadTexture(tt.Explosion)
 }
 
-func (tt *Textures) FetchTexture(cur *card.Card) (texture rl.Texture2D, rect rl.Rectangle) {
+func (tt *Textures) FetchCardTexture(cur *card.Card) (texture rl.Texture2D, rect rl.Rectangle) {
 	if cur.Show {
 		var texture rl.Texture2D
 		switch cur.Suit {
@@ -171,4 +171,50 @@ func (tt *Textures) FetchTexture(cur *card.Card) (texture rl.Texture2D, rect rl.
 		return texture, rect
 	}
 	return tt.Back, tt.Rect01
+}
+
+func (tt *Textures) DrawExplosion(frame int, pos *rl.Vector2, dim *rl.Vector2) {
+	if frame >= 16 {
+		return
+	}
+	var rectExplosion rl.Rectangle
+	switch frame {
+	case 0:
+		rectExplosion = tt.RectExplosion01
+	case 1:
+		rectExplosion = tt.RectExplosion02
+	case 2:
+		rectExplosion = tt.RectExplosion03
+	case 3:
+		rectExplosion = tt.RectExplosion04
+	case 4:
+		rectExplosion = tt.RectExplosion05
+	case 5:
+		rectExplosion = tt.RectExplosion06
+	case 6:
+		rectExplosion = tt.RectExplosion07
+	case 7:
+		rectExplosion = tt.RectExplosion08
+	case 8:
+		rectExplosion = tt.RectExplosion09
+	case 9:
+		rectExplosion = tt.RectExplosion10
+	case 10:
+		rectExplosion = tt.RectExplosion11
+	case 11:
+		rectExplosion = tt.RectExplosion12
+	case 12:
+		rectExplosion = tt.RectExplosion13
+	case 13:
+		rectExplosion = tt.RectExplosion14
+	case 14:
+		rectExplosion = tt.RectExplosion15
+	case 15:
+		rectExplosion = tt.RectExplosion16
+	}
+	posExplosion := rl.NewVector2(
+		pos.X+dim.X/2-tt.ExplosionWidth/2,
+		pos.Y+dim.Y/2-tt.ExplosionHeight/2,
+	)
+	rl.DrawTextureRec(tt.Explosion, rectExplosion, posExplosion, rl.White)
 }
