@@ -6,103 +6,121 @@ import (
 	rl "github.com/gen2brain/raylib-go/raylib"
 	"github.com/jjjosephhh/solitaire-thirteens/card"
 	"github.com/jjjosephhh/solitaire-thirteens/constants"
-	"github.com/jjjosephhh/solitaire-thirteens/deck"
+	"github.com/jjjosephhh/solitaire-thirteens/pile"
 	"github.com/jjjosephhh/solitaire-thirteens/textures"
+	"github.com/jjjosephhh/solitaire-thirteens/utils"
 )
 
 func main() {
-	windowWidth := 440 + int32(6*constants.SPACING_H)
-	windowHeight := int32(2*372/3 + 3*constants.SPACING_V)
-	rl.InitWindow(windowWidth, windowHeight, "Solitaire - Thirteens")
+	screenWidth := 440 + int32(6*constants.SPACING_H)
+	screenHeight := int32(2*372/3 + 3*constants.SPACING_V)
+	rl.InitWindow(screenWidth, screenHeight, "Solitaire - Thirteens")
 	defer rl.CloseWindow()
+
 	rl.SetTargetFPS(60)
 
 	tt := textures.LoadTextures()
 	defer tt.UnloadTextures()
 
-	d := deck.NewDeck(tt.CardWidth, tt.CardHeight, windowWidth, windowHeight)
-	d.InitializeCardsInPlay()
+	cardDim := rl.NewVector2(tt.CardWidth, tt.CardHeight)
+	posUnplayed := rl.NewVector2(float32(screenWidth)/2-cardDim.X/2, -cardDim.Y)
+	posMatched := rl.NewVector2(float32(screenWidth)/2-cardDim.X/2, float32(screenHeight))
+	unplayed := pile.NewDeck(&posUnplayed, &cardDim)
+	inPlay := &pile.Pile{Cards: unplayed.InitializeInPlay()}
+	matched := &pile.Pile{
+		Cards:    make([]*card.Card, 0),
+		Position: &posMatched,
+	}
+
 	var t float32 // time parameter
-	var clickedCard1 *card.Card
-	var clickedCard2 *card.Card
-	var mousePos rl.Vector2
+
+	var selected1 *card.Card
+	var selected2 *card.Card
+
+	var posMouse rl.Vector2
 	var leftMouseDown bool
-	var canClick bool
+	var canSelect bool
 	canPlay := true
+
+	fmt.Println(cardDim, posUnplayed, posMatched, unplayed, inPlay, matched, selected1, selected2, posMouse, leftMouseDown, canSelect, canPlay)
 	for !rl.WindowShouldClose() {
 		t += rl.GetFrameTime()
-		canClick = true
-		for _, c := range d.InPlay {
+		canSelect = true
+
+		for _, c := range inPlay.Cards {
 			if c.InMotion() {
-				canClick = false
+				canSelect = false
 				break
 			}
 		}
-		if canClick {
-			for _, c := range d.Matched {
+
+		if canSelect {
+			for _, c := range matched.Cards {
 				if c.InMotion() {
-					canClick = false
+					canSelect = false
 					break
 				}
 			}
 		}
 
-		if canClick && rl.IsMouseButtonDown(rl.MouseLeftButton) {
-			mousePos = rl.GetMousePosition()
+		if canSelect && rl.IsMouseButtonDown(rl.MouseLeftButton) {
+			posMouse = rl.GetMousePosition()
 			if !leftMouseDown {
-				if (len(d.InDeck) == 0 && len(d.InPlay) == 0) || !canPlay {
+				if unplayed.IsEmpty() && inPlay.IsEmpty() || !canPlay {
 					canPlay = true
-					d = deck.NewDeck(tt.CardWidth, tt.CardHeight, windowWidth, windowHeight)
-					d.InitializeCardsInPlay()
+					unplayed = pile.NewDeck(&posUnplayed, &cardDim)
+					inPlay.Cards = unplayed.InitializeInPlay()
 					continue
 				}
 
-				for _, c := range d.InPlay {
-					if c.CurPos.X <= mousePos.X && mousePos.X <= c.CurPos.X+tt.CardWidth {
-						if c.CurPos.Y <= mousePos.Y && mousePos.Y <= c.CurPos.Y+tt.CardHeight {
-							if clickedCard1 == nil {
-								clickedCard1 = c
-								if emptySpots := d.IsThirteen(clickedCard1, clickedCard2); len(emptySpots) > 0 {
-									clickedCard1 = nil
-									clickedCard2 = nil
-									for _, emptySpot := range emptySpots {
-										c, ok := d.Draw()
+				for _, c := range inPlay.Cards {
+					if c.CurPos.X <= posMouse.X && posMouse.X <= c.CurPos.X+tt.CardWidth {
+						if c.CurPos.Y <= posMouse.Y && posMouse.Y <= c.CurPos.Y+tt.CardHeight {
+							if selected1 == nil {
+								selected1 = c
+								if matches := utils.IsMatch(selected1, selected2); len(matches) > 0 {
+									inPlay.MoveTo(matched, matches)
+									selected1 = nil
+									selected2 = nil
+									for _, matchedCard := range matches {
+										c, ok := unplayed.Draw()
 										if !ok {
 											continue
 										}
 										c.Show = true
-										c.NextPos = emptySpot
-										d.InPlay = append(d.InPlay, c)
+										c.NextPos = matchedCard.CurPos
+										inPlay.Cards = append(inPlay.Cards, c)
 									}
 								}
 								break
 							}
 
-							if c == clickedCard1 {
-								clickedCard1 = nil
+							if c == selected1 {
+								selected1 = nil
 								break
 							}
 
-							if clickedCard2 == nil {
-								clickedCard2 = c
-								if emptySpots := d.IsThirteen(clickedCard1, clickedCard2); len(emptySpots) > 0 {
-									clickedCard1 = nil
-									clickedCard2 = nil
-									for _, emptySpot := range emptySpots {
-										c, ok := d.Draw()
+							if selected2 == nil {
+								selected2 = c
+								if matches := utils.IsMatch(selected1, selected2); len(matches) > 0 {
+									inPlay.MoveTo(matched, matches)
+									selected1 = nil
+									selected2 = nil
+									for _, matchedCard := range matches {
+										c, ok := unplayed.Draw()
 										if !ok {
 											continue
 										}
 										c.Show = true
-										c.NextPos = emptySpot
-										d.InPlay = append(d.InPlay, c)
+										c.NextPos = matchedCard.CurPos
+										inPlay.Cards = append(inPlay.Cards, c)
 									}
 								}
 								break
 							}
 
-							if c == clickedCard2 {
-								clickedCard2 = nil
+							if c == selected2 {
+								selected2 = nil
 								break
 							}
 
@@ -115,26 +133,26 @@ func main() {
 			leftMouseDown = false
 		}
 
-		if clickedCard1 != nil && clickedCard2 != nil {
-			clickedCard1.Exploading = true
+		if selected1 != nil && selected2 != nil {
+			selected1.Exploading = true
 			now := rl.GetTime()
-			clickedCard1.ExploadingTimeCur = now
-			clickedCard1.ExploadingTimeNext = now + constants.FRAME_TIME_EXPLOSION
-			clickedCard1.ExploadingFrame = 0
-			clickedCard1 = nil
+			selected1.ExploadingTimeCur = now
+			selected1.ExploadingTimeNext = now + constants.FRAME_TIME_EXPLOSION
+			selected1.ExploadingFrame = 0
+			selected1 = nil
 
-			clickedCard2.Exploading = true
-			clickedCard2.ExploadingTimeCur = now
-			clickedCard2.ExploadingTimeNext = now + constants.FRAME_TIME_EXPLOSION
-			clickedCard2.ExploadingFrame = 0
-			clickedCard2 = nil
+			selected2.Exploading = true
+			selected2.ExploadingTimeCur = now
+			selected2.ExploadingTimeNext = now + constants.FRAME_TIME_EXPLOSION
+			selected2.ExploadingFrame = 0
+			selected2 = nil
 		}
 
 		rl.BeginDrawing()
 
 		rl.ClearBackground(rl.NewColor(0, 128, 128, 255))
 
-		for _, c := range d.InPlay {
+		for _, c := range inPlay.Cards {
 			if c.CurPos.X == c.NextPos.X && c.CurPos.Y == c.NextPos.Y {
 				c.NextPos.X = -10000
 				c.NextPos.Y = -10000
@@ -152,7 +170,7 @@ func main() {
 			}
 			texture, rect := tt.FetchTexture(c)
 			rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
-			if c == clickedCard1 || c == clickedCard2 {
+			if c == selected1 || c == selected2 {
 				rl.DrawRectangleLinesEx(
 					rl.NewRectangle(
 						c.CurPos.X-2,
@@ -171,7 +189,6 @@ func main() {
 				if c.ExploadingTimeCur >= c.ExploadingTimeNext {
 					c.ExploadingTimeNext = now + constants.FRAME_TIME_EXPLOSION
 					c.ExploadingFrame++
-					fmt.Println("-->", c.ExploadingTimeCur, c.ExploadingTimeNext, c.ExploadingFrame)
 				}
 				if c.ExploadingFrame >= 16 {
 					c.Exploading = false
@@ -221,7 +238,7 @@ func main() {
 			}
 		}
 
-		for _, c := range d.Matched {
+		for _, c := range matched.Cards {
 			if !c.Show {
 				continue
 			}
@@ -244,28 +261,27 @@ func main() {
 			rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
 		}
 
-		// rl.DrawTextureRec(tt.Back, tt.Rect01, constants.POSITION_DECK, rl.White)
-		if len(d.InPlay) == 0 {
+		if len(inPlay.Cards) == 0 {
 			textWidth := rl.MeasureText(constants.TEXT_WIN, constants.TEXT_SIZE_WIN)
 			rl.DrawText(
 				constants.TEXT_WIN,
-				(windowWidth-textWidth)/2,
-				(windowHeight-constants.TEXT_SIZE_WIN)/2,
+				(screenWidth-textWidth)/2,
+				(screenHeight-constants.TEXT_SIZE_WIN)/2,
 				constants.TEXT_SIZE_WIN,
 				rl.White,
 			)
 		}
 
 		if canPlay {
-			canPlay = d.CanPlay()
+			canPlay = utils.MatchExists(inPlay.Cards)
 		}
 		if !canPlay {
-			rl.DrawRectangle(0, 0, windowWidth, windowHeight, constants.COLOR_RESTART)
+			rl.DrawRectangle(0, 0, screenWidth, screenHeight, constants.COLOR_RESTART)
 			textWidth := rl.MeasureText(constants.TEXT_RESTART, constants.TEXT_SIZE_RESTART)
 			rl.DrawText(
 				constants.TEXT_RESTART,
-				(windowWidth-textWidth)/2,
-				(windowHeight-constants.TEXT_SIZE_RESTART)/2,
+				(screenWidth-textWidth)/2,
+				(screenHeight-constants.TEXT_SIZE_RESTART)/2,
 				constants.TEXT_SIZE_RESTART,
 				rl.White,
 			)
