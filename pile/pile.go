@@ -69,7 +69,7 @@ func (p *Pile) Shuffle() {
 }
 
 func (p *Pile) Draw() (*card.Card, bool) {
-	if len(p.Cards) == 0 {
+	if p.IsEmpty() {
 		return nil, false
 	}
 	end := len(p.Cards) - 1
@@ -107,4 +107,22 @@ func (p *Pile) MoveTo(targetPile *Pile, cards []*card.Card) []*card.Card {
 		moved = append(moved, c)
 	}
 	return moved
+}
+
+func (p *Pile) MatchExists() bool {
+	if p.IsEmpty() {
+		return true
+	}
+	seen := make(map[int]bool)
+	for _, c := range p.Cards {
+		dif := constants.TARGET_NUM - c.Num
+		if dif == 0 {
+			return true
+		}
+		if _, ok := seen[dif]; ok {
+			return true
+		}
+		seen[c.Num] = true
+	}
+	return false
 }

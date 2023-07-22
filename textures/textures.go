@@ -122,10 +122,14 @@ func (tt *Textures) UnloadTextures() {
 	rl.UnloadTexture(tt.Explosion)
 }
 
-func (tt *Textures) FetchCardTexture(cur *card.Card) (texture rl.Texture2D, rect rl.Rectangle) {
-	if cur.Show {
-		var texture rl.Texture2D
-		switch cur.Suit {
+func (tt *Textures) DrawCard(c *card.Card) {
+	if c == nil {
+		return
+	}
+	var texture rl.Texture2D
+	var rect rl.Rectangle
+	if c.Show {
+		switch c.Suit {
 		case card.Clubs:
 			texture = tt.Clubs
 		case card.Diamonds:
@@ -137,8 +141,7 @@ func (tt *Textures) FetchCardTexture(cur *card.Card) (texture rl.Texture2D, rect
 		default:
 			texture = tt.Back
 		}
-		var rect rl.Rectangle
-		switch cur.Num {
+		switch c.Num {
 		case 1:
 			rect = tt.Rect01
 		case 2:
@@ -168,9 +171,11 @@ func (tt *Textures) FetchCardTexture(cur *card.Card) (texture rl.Texture2D, rect
 		default:
 			rect = tt.Rect01
 		}
-		return texture, rect
+	} else {
+		texture = tt.Back
+		rect = tt.Rect01
 	}
-	return tt.Back, tt.Rect01
+	rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
 }
 
 func (tt *Textures) DrawExplosion(frame int, pos *rl.Vector2, dim *rl.Vector2) {

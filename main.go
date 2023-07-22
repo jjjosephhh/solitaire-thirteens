@@ -168,8 +168,7 @@ func main() {
 					c.CurPos.Y = c.NextPos.Y
 				}
 			}
-			texture, rect := tt.FetchCardTexture(c)
-			rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
+			tt.DrawCard(c)
 			if c == selected1 || c == selected2 {
 				rl.DrawRectangleLinesEx(
 					rl.NewRectangle(
@@ -217,11 +216,10 @@ func main() {
 					c.CurPos.Y = c.NextPos.Y
 				}
 			}
-			texture, rect := tt.FetchCardTexture(c)
-			rl.DrawTextureRec(texture, rect, c.CurPos, rl.White)
+			tt.DrawCard(c)
 		}
 
-		if len(inPlay.Cards) == 0 {
+		if inPlay.IsEmpty() {
 			textWidth := rl.MeasureText(constants.TEXT_WIN, constants.TEXT_SIZE_WIN)
 			rl.DrawText(
 				constants.TEXT_WIN,
@@ -233,7 +231,7 @@ func main() {
 		}
 
 		if canPlay {
-			canPlay = utils.MatchExists(inPlay.Cards)
+			canPlay = inPlay.MatchExists()
 		}
 		if !canPlay {
 			rl.DrawRectangle(0, 0, screenWidth, screenHeight, constants.COLOR_RESTART)

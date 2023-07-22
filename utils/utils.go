@@ -2,26 +2,7 @@ package utils
 
 import (
 	"github.com/jjjosephhh/solitaire-thirteens/card"
-	"github.com/jjjosephhh/solitaire-thirteens/constants"
 )
-
-func MatchExists(inPlay []*card.Card) bool {
-	if len(inPlay) == 0 {
-		return true
-	}
-	seen := make(map[int]bool)
-	for _, c := range inPlay {
-		dif := constants.TARGET_NUM - c.Num
-		if dif == 0 {
-			return true
-		}
-		if _, ok := seen[dif]; ok {
-			return true
-		}
-		seen[c.Num] = true
-	}
-	return false
-}
 
 func IsMatch(c1, c2 *card.Card) []*card.Card {
 	var matches []*card.Card
