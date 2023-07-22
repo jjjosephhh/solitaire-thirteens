@@ -13,7 +13,7 @@ import (
 func main() {
 	windowWidth := 440 + int32(6*constants.SPACING_H)
 	windowHeight := int32(2*372/3 + 3*constants.SPACING_V)
-	rl.InitWindow(windowWidth, windowHeight, "raylib [core] example - basic window")
+	rl.InitWindow(windowWidth, windowHeight, "Solitaire - Thirteens")
 	defer rl.CloseWindow()
 	rl.SetTargetFPS(60)
 
@@ -21,16 +21,16 @@ func main() {
 	defer tt.UnloadTextures()
 
 	d := deck.NewDeck(tt.CardWidth, tt.CardHeight, windowWidth, windowHeight)
-	d.Draw10()
+	d.InitializeCardsInPlay()
 	var t float32 // time parameter
 	var clickedCard1 *card.Card
 	var clickedCard2 *card.Card
 	var mousePos rl.Vector2
 	var leftMouseDown bool
 	var canClick bool
+	canPlay := true
 	for !rl.WindowShouldClose() {
 		t += rl.GetFrameTime()
-
 		canClick = true
 		for _, c := range d.InPlay {
 			if c.InMotion() {
@@ -50,9 +50,10 @@ func main() {
 		if canClick && rl.IsMouseButtonDown(rl.MouseLeftButton) {
 			mousePos = rl.GetMousePosition()
 			if !leftMouseDown {
-				if len(d.InDeck) == 0 && len(d.InPlay) == 0 {
+				if (len(d.InDeck) == 0 && len(d.InPlay) == 0) || !canPlay {
+					canPlay = true
 					d = deck.NewDeck(tt.CardWidth, tt.CardHeight, windowWidth, windowHeight)
-					d.Draw10()
+					d.InitializeCardsInPlay()
 					continue
 				}
 
@@ -251,6 +252,21 @@ func main() {
 				(windowWidth-textWidth)/2,
 				(windowHeight-constants.TEXT_SIZE_WIN)/2,
 				constants.TEXT_SIZE_WIN,
+				rl.White,
+			)
+		}
+
+		if canPlay {
+			canPlay = d.CanPlay()
+		}
+		if !canPlay {
+			rl.DrawRectangle(0, 0, windowWidth, windowHeight, constants.COLOR_RESTART)
+			textWidth := rl.MeasureText(constants.TEXT_RESTART, constants.TEXT_SIZE_RESTART)
+			rl.DrawText(
+				constants.TEXT_RESTART,
+				(windowWidth-textWidth)/2,
+				(windowHeight-constants.TEXT_SIZE_RESTART)/2,
+				constants.TEXT_SIZE_RESTART,
 				rl.White,
 			)
 		}

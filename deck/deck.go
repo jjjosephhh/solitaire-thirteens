@@ -35,7 +35,25 @@ func NewDeck(cardWidth, cardHeight float32, windowWidth, windowHeight int32) *De
 	return d
 }
 
-func (d *Deck) Draw10() {
+func (d *Deck) CanPlay() bool {
+	if len(d.InDeck) == 0 {
+		return true
+	}
+	seen := make(map[int]bool)
+	for _, c := range d.InPlay {
+		dif := constants.TARGET_NUM - c.Num
+		if dif == 0 {
+			return true
+		}
+		if _, ok := seen[dif]; ok {
+			return true
+		}
+		seen[c.Num] = true
+	}
+	return false
+}
+
+func (d *Deck) InitializeCardsInPlay() {
 	for i := 0; i < 10; i++ {
 		c, ok := d.Draw()
 		if !ok {
