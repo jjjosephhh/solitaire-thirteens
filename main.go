@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	screenWidth := 440 + int32(6*constants.SPACING_H)
-	screenHeight := int32(2*372/3 + 3*constants.SPACING_V)
+	screenWidth := int32(rl.GetScreenWidth())
+	screenHeight := int32(rl.GetScreenHeight())
 	rl.InitWindow(screenWidth, screenHeight, "Solitaire - Thirteens")
 	defer rl.CloseWindow()
 
